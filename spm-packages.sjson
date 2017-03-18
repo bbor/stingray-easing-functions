@@ -6,18 +6,6 @@ source-templates = {
 
 packages = {
 
-	/** TODO: Put your external packages here
-
-	my-external-package = {
-		groups = ["engine"]
-		platforms = ["win64"]
-		lib = "my-external-package-1.0.42"
-		url = "https://somesite.net/my-external-package.zip"
-		version = "<anything>"
-	}
-
-	*/
-
 	// Build system packages
 
 	stingray-plugin-sdk = {

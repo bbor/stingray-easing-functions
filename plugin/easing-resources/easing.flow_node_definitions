@@ -1,0 +1,208 @@
+enums = {
+	easing_modes_enum = [
+		{
+			name = "Linear"
+			value = 0
+		}
+		{
+			name = "Quadratic In"
+			value = 1
+		}
+		{
+			name = "Quadratic Out"
+			value = 2
+		}
+		{
+			name = "Quadratic In Out"
+			value = 3
+		}
+		{
+			name = "Cubic In"
+			value = 4
+		}
+		{
+			name = "Cubic Out"
+			value = 5
+		}
+		{
+			name = "Cubic In Out"
+			value = 6
+		}
+		{
+			name = "Quartic In"
+			value = 7
+		}
+		{
+			name = "Quartic Out"
+			value = 8
+		}
+		{
+			name = "Quartic In Out"
+			value = 9
+		}
+		{
+			name = "Quintic In"
+			value = 10
+		}
+		{
+			name = "Quintic Out"
+			value = 11
+		}
+		{
+			name = "Quintic In Out"
+			value = 12
+		}
+		{
+			name = "Sine In"
+			value = 13
+		}
+		{
+			name = "Sine Out"
+			value = 14
+		}
+		{
+			name = "Sine In Out"
+			value = 15
+		}
+		{
+			name = "Circular In"
+			value = 16
+		}
+		{
+			name = "Circular Out"
+			value = 17
+		}
+		{
+			name = "Circular In Out"
+			value = 18
+		}
+		{
+			name = "Exponential In"
+			value = 19
+		}
+		{
+			name = "Exponential Out"
+			value = 20
+		}
+		{
+			name = "Exponential In Out"
+			value = 21
+		}
+		{
+			name = "Elastic In"
+			value = 22
+		}
+		{
+			name = "Elastic Out"
+			value = 23
+		}
+		{
+			name = "Elastic In Out"
+			value = 24
+		}
+		{
+			name = "Back In"
+			value = 25
+		}
+		{
+			name = "Back Out"
+			value = 26
+		}
+		{
+			name = "Back In Out"
+			value = 27
+		}
+		{
+			name = "Bounce In"
+			value = 28
+		}
+		{
+			name = "Bounce Out"
+			value = 29
+		}
+		{
+			name = "Bounce In Out"
+			value = 30
+		}
+	]
+}
+
+nodes = [
+  {
+    name = "ease"
+    ui_category = "Math"
+    ui_brief = "Interpolates between two values, using a specified easing function."
+    inputs = [
+      {
+        name = "easing_mode"
+        type = "enum"
+        enum = "easing_modes_enum"
+        ui_initial_value = "Quadratic In Out"
+      }
+      {
+        name = "start_value"
+        type = "float"
+        ui_initial_value = 0
+      }
+      {
+        name = "end_value"
+        type = "float"
+        ui_initial_value = 1
+      }
+      {
+        name = "time_ratio"
+        type = "float"
+      }
+    ]
+    outputs = [
+      {
+        name = "result"
+        type = "float"
+        data_update = "query"
+      }
+    ]
+  }
+  {
+    name = "ease_over_time"
+    ui_category = "Math"
+    ui_brief = "Interpolates between two values, using a specified easing function, based on elapsed time since a starting point."
+    inputs = [
+      {
+        name = "easing_mode"
+        type = "enum"
+        enum = "easing_modes_enum"
+        ui_initial_value = "Quadratic In Out"
+      }
+      {
+        name = "start_value"
+        type = "float"
+        ui_initial_value = 0
+      }
+      {
+        name = "end_value"
+        type = "float"
+        ui_initial_value = 1
+      }
+      {
+        name = "start_time"
+        type = "float"
+      }
+      {
+        name = "total_time"
+        type = "float"
+        ui_initial_value = 5
+      }
+    ]
+    outputs = [
+      {
+        name = "done"
+        type = "event"
+      }
+      {
+        name = "result"
+        type = "float"
+        data_update = "query"
+      }
+    ]
+  }
+]

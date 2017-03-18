@@ -1,99 +1,182 @@
-Welcome to Stingray Plugin
-==========================
+stingray-easing
+===============
 
-This is the main source code repository to build new Stingray plugins.
+A plug-in for Stingray that adds easing math functions to Lua, Flow and C.
 
-Stingray plugins can include the following components and this startup repo contains minimal examples for all of them.
+You can use these easing functions to smoothly interpolate numeric values along a curve between a start and end value, like one of these:
 
-- [x] A plugin descriptor (.plugin)
-- [x] Various engine and editor components, such as:
-	- [x] Engine runtime resources (i.e. `units`, `entity`, etc.)
-	- [x] Engine native plugin extension (C/C++ dll)
-		- [x] The editor loads and unloads these extensions at runtime using `runtime_libraries` extensions.
-	- [x] Editor native plugin extension(s) (C/C++ dll)
-	- [x] Editor scripts/modules
-	- [x] Plugin extensions
-- [x] Contain a sample project.
-- [x] Build system included.
-    - [x] `make.rb` is used to interface the Stingray plugin build system.
-    - [x] `spm.rb` is used to fetch and install build packages, plugin sdk, and external libraries.
-	- [x] `cmake` is used to generate and compile the native plugin extension.
+![](http://vitiy.info/wp-content/uploads/2014/11/Screenshot-2014-11-27-16.22.22.png)
 
-## Quick start for new customers
+(source: [http://easings.net/](http://easings.net/))
 
-The following steps are a shorthand guide to getting started, aimed at a relatively knowledgeable developer. It will help you create your first custom Stingray plugin, using a preset configuration.
+These easing curves are particularly useful for moving a camera smoothly between two viewpoints without jarring starts and stops, but you can use them for any kind of parametric animation you need in your project.
 
-For more detail on all the topics below, as well as instructions for building with support for other target platforms, please see the Stingray Developer Help (link [below](#more-help)).
+## Install
 
-### Step 1. Install prerequisites
+1.	Download the latest release from the [Releases](/bbor/stingray-easing/releases) tab of this repo, and extract it to disk.
 
--   Git client: <https://git-scm.com/>
--   Ruby 2.0 or later: <http://rubyinstaller.org>.
-    -   Rubygems SSL fix (if needed): <http://guides.rubygems.org/ssl-certificate-update>
--   Visual Studio 2015 with Update 3 & Patch KB3165756: <https://www.visualstudio.com/downloads/#visual-studio-professional-2015-with-update-3>
+	Or, get a clone of this repo and run `make.rb` to build its binaries from scratch.
 
-### Step 2. Get a local copy of the source
+2.	Open the Stingray Editor, and go to the **Plugin Manager** (Alt+Shift+P).
 
-You will need to clone a local copy of this repository using the Git command line (explanation as to why below).
+3.	Click **Add Plugin**, browse to the folder you extracted (or the `plugin` folder of this repo if you built it yourself), and select the `easing.stingray_plugin` file.
 
-Note that this repository only contains source code for platforms with public development libraries: e.g. Windows, iOS, and Android. If that is all you need access to then you can sinmply do:
+4.	This plug-in adds a resource folder that contains its custom Flow node definitions. If you want to use these Flow nodes in your project, you'll have to add this resource folder to your `boot.package` file (or to another package that you load in later). Add the following line to the bottom of the file:
 
+	`flow_node_definitions = ["easing-resources/*"]`
+
+## Use in Lua
+
+This plug-in adds the following functions to the Lua environment:
+
+`stingray.Easing.ease_ratio( mode, time_ratio ) : number`
+
+-	`mode` is the easing mode (see below.)
+-	`time_ratio` is the delta-time value, expressed as a number between 0 and 1. This is basically the X axis of the curve images above, where 0 is all the way to the left and 1 is all the way to the right.
+-	The return value is the result of the interpolation for the selected curve, expressed as a number between 0 and 1. Basically the Y axis of the curves above. You can apply this ratio yourself to whatever data you're animating.
+
+This is the handiest function if you're manipulating the time value you pass in to a linear interpolation function on a vector, matrix or quaternion (see below).
+
+`stingray.Easing.ease_values( mode, start_value, end_value, time_ratio ) : number`
+
+-	`mode` is the easing mode (see below.)
+-	`start_value` is the numeric start value for the interpolation.
+-	`end_value` is the numeric end value for the interpolation.
+-	`time_ratio` is the delta-time value, expressed as a number between 0 and 1. This is basically the X axis of the curve images above, where 0 is all the way to the left (and will result in returning the `start_value`) and 1 is all the way to the right (and will result in returning the `end_value`).
+-	The return value is the interpolation for the selected curve between the `start_value` and the `end_value`. Basically the Y axis of the curves above.
+
+`stingray.Easing.ease_values_over_time( mode, start_value, end_value, total_time, elapsed_time ) : number`
+
+-	`mode` is the easing mode (see below.)
+-	`start_value` is the numeric start value for the interpolation.
+-	`end_value` is the numeric end value for the interpolation.
+-	`total_time` is the total amount of time that the animation should take to move from the start value to the end value.
+-	`elapsed_time` is the delta-time value, expressed as a number between 0 and `total_time`. This is basically the X axis of the curve images above, where 0 is all the way to the left (and will result in returning the `start_value`) and `total_time` is all the way to the right (and will result in returning the `end_value`).
+-	The return value is the interpolation for the selected curve between the `start_value` and the `end_value`. Basically the Y axis of the curves above.
+
+**Mode names**
+
+The `mode` parameter can be any of the following constants:
+
+-	`stingray.EasingMode.LINEAR`
+-	`stingray.EasingMode.QUADRATIC_IN`
+-	`stingray.EasingMode.QUADRATIC_OUT`
+-	`stingray.EasingMode.QUADRATIC_IN_OUT`
+-	`stingray.EasingMode.CUBIC_IN`
+-	`stingray.EasingMode.CUBIC_OUT`
+-	`stingray.EasingMode.CUBIC_IN_OUT`
+-	`stingray.EasingMode.QUARTIC_IN`
+-	`stingray.EasingMode.QUARTIC_OUT`
+-	`stingray.EasingMode.QUARTIC_IN_OUT`
+-	`stingray.EasingMode.QUINTIC_IN`
+-	`stingray.EasingMode.QUINTIC_OUT`
+-	`stingray.EasingMode.QUINTIC_IN_OUT`
+-	`stingray.EasingMode.SINE_IN`
+-	`stingray.EasingMode.SINE_OUT`
+-	`stingray.EasingMode.SINE_IN_OUT`
+-	`stingray.EasingMode.CIRCULAR_IN`
+-	`stingray.EasingMode.CIRCULAR_OUT`
+-	`stingray.EasingMode.CIRCULAR_IN_OUT`
+-	`stingray.EasingMode.EXPONENTIAL_IN`
+-	`stingray.EasingMode.EXPONENTIAL_OUT`
+-	`stingray.EasingMode.EXPONENTIAL_IN_OUT`
+-	`stingray.EasingMode.ELASTIC_IN`
+-	`stingray.EasingMode.ELASTIC_OUT`
+-	`stingray.EasingMode.ELASTIC_IN_OUT`
+-	`stingray.EasingMode.BACK_IN`
+-	`stingray.EasingMode.BACK_OUT`
+-	`stingray.EasingMode.BACK_IN_OUT`
+-	`stingray.EasingMode.BOUNCE_IN`
+-	`stingray.EasingMode.BOUNCE_OUT`
+-	`stingray.EasingMode.BOUNCE_IN_OUT`
+
+For example:
+
+```lua
+local interpolated_value = stingray.Easing.ease_values( stingray.EasingMode.QUADRATIC_IN_OUT, 10, 20, 0.25 )
+print(tostring(interpolated_value))  -- 11.25
 ```
-git clone https://github.com/AutodeskGames/stingray-plugin.git <name of your plugin>
+
+## Use in Flow
+
+The easing functions are exposed to Flow through two nodes: **Math > Ease** and **Math > Ease Over Time**.
+
+![](readme_images/nodes.png)
+
+-	Choose the easing function you want to use from the **Easing Mode** list.
+-	The **Start Value** and **End Value** are optional; you can leave them at 0 and 1.
+-	Use the node on the left if you want to provide the delta-time value for the calculation, expressed as a number between 0 and 1. This is basically the X axis of the curve images above, where 0 is all the way to the left (and will result in returning the `start_value`) and 1 is all the way to the right (and will result in returning the `end_value`).
+-	As an alternative, so that you don't have to calculate the ratio yourself, you can use the node on the right to pass in a start time and the total time that you want the transformation to take (in seconds). The node will calculate the delta-time (i.e. the location on the X axis of the curve images above) based on these values.
+-	The **Result** is the interpolation between the start value and the end value at the specified delta time along the curve you've chosen. Basically the Y axis of the curves above.
+-	The **Ease Over Time** node emits the Done event when the total time has elapsed since the start time.
+
+## Use in C from another engine plug-in
+
+If you're writing your own plug-in in C, you can call these easing functions through this plug-in's API. Retrieve its API from the engine by calling the `PluginManagerApi::next_plugin_api()` function, passing the `EASING_API_ID` below. Cast the pointer returned by the engine into this struct definition:
+
+```c
+unsigned EASING_API_ID = 0x1ed2147a;
+struct easing_api {
+	enum EASING_MODE {
+		EASING_MODE_LINEAR,
+		EASING_MODE_QUADRATIC_IN,
+		EASING_MODE_QUADRATIC_OUT,
+		EASING_MODE_QUADRATIC_IN_OUT,
+		EASING_MODE_CUBIC_IN,
+		EASING_MODE_CUBIC_OUT,
+		EASING_MODE_CUBIC_IN_OUT,
+		EASING_MODE_QUARTIC_IN,
+		EASING_MODE_QUARTIC_OUT,
+		EASING_MODE_QUARTIC_IN_OUT,
+		EASING_MODE_QUINTIC_IN,
+		EASING_MODE_QUINTIC_OUT,
+		EASING_MODE_QUINTIC_IN_OUT,
+		EASING_MODE_SINE_IN,
+		EASING_MODE_SINE_OUT,
+		EASING_MODE_SINE_IN_OUT,
+		EASING_MODE_CIRCULAR_IN,
+		EASING_MODE_CIRCULAR_OUT,
+		EASING_MODE_CIRCULAR_IN_OUT,
+		EASING_MODE_EXPONENTIAL_IN,
+		EASING_MODE_EXPONENTIAL_OUT,
+		EASING_MODE_EXPONENTIAL_IN_OUT,
+		EASING_MODE_ELASTIC_IN,
+		EASING_MODE_ELASTIC_OUT,
+		EASING_MODE_ELASTIC_IN_OUT,
+		EASING_MODE_BACK_IN,
+		EASING_MODE_BACK_OUT,
+		EASING_MODE_BACK_IN_OUT,
+		EASING_MODE_BOUNCE_IN,
+		EASING_MODE_BOUNCE_OUT,
+		EASING_MODE_BOUNCE_IN_OUT,
+	};
+
+	float(*ease_ratio)(EASING_MODE mode, float time_ratio);
+	float(*ease_values)(EASING_MODE mode, float start_value, float end_value, float time_ratio);
+	float(*ease_values_over_time)(EASING_MODE mode, float start_value, float end_value, float total_time, float elapsed_time);
+};
 ```
 
-And you should have everything you need.
+## But I want easings for vectors too! And quaternions! Matrices, yo!
 
-### Step 3. Set up your library directory
+No sweat!
 
-Every revision of the Stingray source code depends on several libraries that are not stored in Git. Instead, our build tools copy these libraries to your computer from a storage location on the Internet.
+1.	Stingray already has *linear* interpolation (lerp) functions for interpolating vertices, quaternions and matrices. These are available in Lua (e.g. `stingray.Vector3.lerp()`), Flow (e.g. the **Vector3 > Lerp** node), and C++ (e.g. `stingray_plugin_foundation::lerp()`). Get started by setting up one of these guys to interpolate your data linearly between your start and end points over time.
 
-Before you run a build, you have to specify a location on your computer where you want the build to store and access these libraries.
+2.	Use the stuff in this plug-in to get an easing ratio for delta-time value you're passing in to the linear interpolate function, using a start value of 0 and an end value of 1. This gives you the interpolation ratio for whichever curve you've chosen at that moment in time.
 
--   Create an environment variable named `SR_LIB_DIR`. Set its value to an empty directory on your computer where you want the libraries to be copied. Make sure that you have at least 2 GB of space.
+3.	Take that ratio, multiply it by your *original* delta-time value, and pass the result of that multiplication in to the lerp function as the delta-time.
 
-### Step 4. Build
+Voilá! You've effectively added easing to the linear interpolation by controlling the rate at which the *time* advances for the calculation.
 
-Run the `make.rb` script in the root directory of this repository.
+You can also take advantage of this effect to tweak your easing results in other ways -- if you can't quite get the effect you're looking for, you can always run a ratio result back through another pass of the same easing function or a different function, or average the results of two different functions... Try it out to come up with some interesting combinations!
 
-~~~
-> ruby make.rb
-~~~
+## Compatibility
 
-This command:
+Requires Stingray 1.8 or later.
 
--   automatically updates your library directory with the correct versions of all libraries needed for your build.
--   generates and builds Visual Studio solutions for the Stingray engine and editing tools.
--   offers several parameters that you can use to control what gets built and how. Call it with the `--help` command-line parameter to get a list of all available parameters.
+## Attribution
 
->   **NOTE:** The first time you run this script, it will take some time to complete all the required downloads. Subsequent builds based on the same revision will not need to download anything. Subsequent builds based on future revisions will only need to download the libraries that have changed since the version you last downloaded.
+The implementations used in this plug-in come from:
 
-#### Build results
-
-By default, the script writes all compiled output to the `plugin/binaries` directory under the root directory in which you cloned the Stingray source code.
-
-##### Directory structure
-
--   `build`: Various build outputs (i.e. CMake generated solutions)
--   `cmake`: CMake helper scripts downloaded by `spm`
--   `editor`: Proposed folder to put editor native extension source code. (i.e. C/C++ plugin sources)
--   `engine`: Proposed folder to put engine native extension source code. (i.e. C/C++ plugin sources)
--   `plugin`: Other plugin sources (plugin descriptor, editor extension, compiled editor and engine extenions, etc.)
--   `stingray_sdk`: Stingray editor and engine C/C++ header based plugin SDK downloaded by `spm`.
--   `tools`: Various build tools downloaded by `spm`.
--   `make.rb`: Build interface script. Execute `make.rb --help` to see all the options.
-
-Once you've successfully built the Stingray plugin, you can zip the `plugin` folder and **distribute** your plugin. For help getting started with with the Stingray SDK, see the tutorial videos and topics in the [main Stingray SDK Help](http://help.autodesk.com/view/Stingray/ENU/?guid=__sdk_help_introduction_html).
-
-##### Plugin structure
-
--   `stingray-example.plugin`: Initial plugin descriptor. It is strongly recommended to rename the file name of this file.
--   `sample_project/`: Example project that demonstrate how your plugin works.
-
-## More help
-
-Please see the [Stingray Developer Help](http://www.autodesk.com/stingray-help/?contextId=DEVELOPER_HOME) for more details on all these topics and more.
-
-## Stay in touch!
-
-Your feedback is essential in making this product a success. Please help us by sharing your opinions about all the things we're doing wrong in the [Stingray user forum](http://www.autodesk.com/stingray-forums) or in the user forums on the [Autodesk beta portal](http://beta.autodesk.com). Autodesk engineers and designers are actively engaged in the forum threads, so you can make your voice heard loud and clear and get help straight from the source.
+<https://github.com/warrenm/AHEasing>
